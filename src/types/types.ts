@@ -1,13 +1,3 @@
-export interface SettingsItem {
-    settingsName: string;
-    settingsValue: string;
-}
-
-export interface AcademicItem {
-    academic_id: number;
-    academic_year: string;
-}
-
 export interface ClassScheduleType {
     class_id: number,
     class_subject: string,

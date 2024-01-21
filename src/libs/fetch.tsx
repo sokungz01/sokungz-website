@@ -11,12 +11,7 @@ export const getSchedulesSettings = async () => {
     return res.data;
 }
 
-export const getSchedule = async (academic_id : number) => {
-    const res = await instance.get(`${url}/api/class-schedule/getSchedule/${academic_id}`);
-    return res.data;
-}
-
-export const getAcademicYear = async () => {
-    const res = await instance.get(`${url}/api/class-schedule/academicYear`);
+export const getSchedule = async () => {
+    const res = await instance.get(`${url}/api/class-schedule/getSchedule`);
     return res.data;
 }
