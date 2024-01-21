@@ -77,7 +77,6 @@ const ScheduleForm = () => {
       <div className="flex w-screen">
         <div className="m-auto text-center w-2/3 lg:w-1/4">
           <div className="mt-5 border border-3 px-5 py-3 rounded-xl">
-            <form method="post">
               <div className="flex flex-col">
                 <SelectOption
                   label="Academic Year"
@@ -171,7 +170,6 @@ const ScheduleForm = () => {
               >
                 Save
               </button>
-            </form>
           </div>
         </div>
       </div>
