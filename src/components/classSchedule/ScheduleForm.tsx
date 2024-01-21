@@ -63,7 +63,7 @@ const ScheduleForm = () => {
     console.log(res.status);
     if (res.status == 200) {
       SuccessForm();
-      setTimeout(() => window.location.reload(), 3000);
+      // setTimeout(() => window.location.reload(), 3000);
     } else {
       ResponseErrorForm();
     }
