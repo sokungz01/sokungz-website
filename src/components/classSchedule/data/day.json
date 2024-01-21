@@ -1,9 +1,9 @@
 [
-  { "day": "Monday", "color": "bg-yellow-200" },
-  { "day": "Tuesday", "color": "bg-pink-200" },
-  { "day": "Wednesday", "color": "bg-green-200" },
-  { "day": "Thursday", "color": "bg-orange-200" },
-  { "day": "Friday", "color": "bg-blue-200" },
-  { "day": "Saturday", "color": "bg-purple-200" },
-  { "day": "Sunday", "color": "bg-red-200" }
+  { "day": "Monday"},
+  { "day": "Tuesday"},
+  { "day": "Wednesday"},
+  { "day": "Thursday" },
+  { "day": "Friday"},
+  { "day": "Saturday"},
+  { "day": "Sunday"}
 ]

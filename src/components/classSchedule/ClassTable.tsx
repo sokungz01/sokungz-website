@@ -2,7 +2,7 @@ import {
   getSchedulesSettings,
   getAcademicYear,
   getSchedule,
-} from "@/libs/fetch";
+} from "@/libs/api";
 import {
   SettingsItem,
   AcademicItem,
@@ -12,9 +12,7 @@ import TimeData from "@/components/classSchedule/data/time.json";
 import DayData from "@/components/classSchedule/data/day.json";
 import { useEffect, useState } from "react";
 
-const days = DayData.map((obj) => {
-  return { day: obj.day, colors: obj.color };
-});
+const days = DayData.map((obj) => obj.day);
 const times = TimeData.map((time) => time.times);
 
 function compareTimes(time1: string, time2: string) {
@@ -31,7 +29,7 @@ function compareTimes(time1: string, time2: string) {
 const ClassTable = () => {
   const [dataSchedule, setdataSchedule] = useState<ClassScheduleType[]>([]);
   const [academicYearData, setAcademicYearData] = useState<AcademicItem[]>([]);
-  const [academicYear, setAcademicYear] = useState<AcademicItem>(); // [TODO
+  const [academicYear, setAcademicYear] = useState<AcademicItem>();
   const [currentAcademicYear, setCurrentAcademicYear] = useState<number>(0);
 
   useEffect(() => {
@@ -40,9 +38,9 @@ const ClassTable = () => {
         const settingsData = await getSchedulesSettings();
         const academicYearData = await getAcademicYear();
 
-        setAcademicYearData(academicYearData.data);
+        setAcademicYearData(academicYearData.data.data);
 
-        const fetchAcademicYear = settingsData.data.find(
+        const fetchAcademicYear = settingsData.data.data.find(
           (item: SettingsItem) => item.settingsName === "currentAcademicYear"
         );
 
@@ -55,7 +53,7 @@ const ClassTable = () => {
         }
 
         getSchedule(currentAcademicYear).then((res) => {
-          setdataSchedule(res.data);
+          setdataSchedule(res.data.data);
         });
       } catch (err) {
         console.log("Error fetching data from the server : ", err);
@@ -70,7 +68,7 @@ const ClassTable = () => {
     FetchData();
   }, [currentAcademicYear]);
   return (
-    <div className="w-full">
+    <div className="w-5/6 h-screen">
       <div className="my-5">
         <label htmlFor="academic_year" className="text-xl">
           Academic Year
@@ -94,47 +92,51 @@ const ClassTable = () => {
           })}
         </select>
       </div>
-      <table className="table-fixed border-separate border-spacing-x-2 border-spacing-y-4 border border-slate-500">
+      <div className="flex items-center justify-center">
+      <table className="w-full h-full flex flex-row flex-no-wrap overflow-hidden sm:flex-none sm:table sm:table-col table-fixed sm:border-separate sm:border-spacing-x-2 sm:border-spacing-y-4 sm:border border-slate-500">
         <thead>
-          <tr>
-            <th className="text-sm border">Day | Time</th>
+          <tr className="hidden sm:table-row">
+            <th scope="col" className="text-sm border py-10 sm:py-3">Day | Time</th>
             {times
               .filter((_, index) => index < times.length - 1)
               .map((_, index) => (
-                <th key={index} className="text-sm border">
-                  {times[index] + " - " + times[index + 1]}
+                <th scope="col" key={index} className="text-sm border">
+                  {times[index] + "-" + times[index + 1]}
                 </th>
               ))}
           </tr>
         </thead>
-        <tbody>
+        <tbody className="flex-1 sm:flex-none">
           {days.map((day, dayIndex) => {
+            const dynamicColorClass = `day-color-${(days[dayIndex]).toLowerCase()}`;
             return (
-              <tr key={dayIndex}>
-                <th className={`text-sm border py-5 ${days[dayIndex].colors}`}>
-                  {day.day}
+              <tr key={dayIndex} className="flex flex-col flex-no wrap my-5 border-2 sm:border-0 sm:table-row">
+                <th className={`text-xs sm:border py-10 ${dynamicColorClass}`}>
+                  {day}
                 </th>
                 {times
                   .filter((_, timeIndex) => timeIndex < times.length - 1)
                   .map((time, timeIndex) => {
                     const scheduleItem = dataSchedule.find(
                       (item) =>
-                        item.day === day.day &&
+                        item.day === day &&
                         compareTimes(item.startTime, time) <= 0 && // Compare start time
                         compareTimes(item.endTime, times[timeIndex + 1]) >= 0 // Compare end time
                     );
+                    
                     return (
                       <td
                         key={timeIndex}
-                        className={`text-sm border ${
-                          scheduleItem ? days[dayIndex].colors : ""
+                        className={`sm:table-col text-sm sm:border ${
+                          scheduleItem ? dynamicColorClass : ""
                         }`}
                       >
                         {scheduleItem ? (
-                          <div>
-                            <p>{scheduleItem.class_subject}</p>
-                            <p>{scheduleItem.class_subject_no}</p>
-                            <p>{scheduleItem.class_room}</p>
+                          <div className="mt-3 sm:mt-0">
+                            <p className="text-xs">{scheduleItem.class_subject}</p>
+                            <p className="text-[10px]">{scheduleItem.class_subject_no}</p>
+                            <p className="text-[10px]">{scheduleItem.class_room}</p>
+                            <p className="text-[10px] sm:hidden">{scheduleItem.startTime+"-"+scheduleItem.endTime}</p>
                           </div>
                         ) : (
                           " "
@@ -147,6 +149,7 @@ const ClassTable = () => {
           })}
         </tbody>
       </table>
+      </div>
       <p className="mt-3">
         Class Schedule for {academicYear?.academic_year} CPE Regular Program |
         KMUTT
