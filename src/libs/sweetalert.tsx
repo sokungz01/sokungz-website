@@ -47,3 +47,19 @@ export const ResponseErrorForm = () => {
     `,
     })
  };
+
+ export const LoginSuccess = () => {
+   Swal.fire({
+      html: ' <div class="flex flex-col"> <p class="text-3xl font-medium"> Success! </p> <p class="text-lg">Login Success</p>  </div> ',
+      icon: "success",
+      background: "#FDFDFD",
+      allowOutsideClick: false,
+      allowEscapeKey: false,
+      showConfirmButton: true,
+      confirmButtonColor: "#454545",
+      confirmButtonText: '<p class="px-4 md:px-6 lg:px-8 text-lg text-red2">Close</p>',
+      backdrop: `
+   rgba(0,0,0,0.6)
+   `,
+   })
+};

@@ -16,7 +16,7 @@ const InputBox = ({
     className?:string,
     type:string,
     pattern?:string,
-    obj?:object,
+    obj?:object | string,
     setObj?:any,
     placeholder?:string,
     required?:boolean,
@@ -25,7 +25,8 @@ const InputBox = ({
 
 }) =>{
     const handleChange = (e:React.ChangeEvent<HTMLInputElement>) => {
-        setObj({...obj, [e.target.name]: e.target.value})
+        if (typeof obj === 'string') return setObj(e.target.value)
+        else return setObj({...obj, [e.target.name]: e.target.value})
     }
     return(
         <>
