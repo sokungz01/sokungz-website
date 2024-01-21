@@ -8,9 +8,10 @@ const ClassSchedulePage = () =>{
             <div className="m-auto text-center">
                 <div className="mt-5">
                     <p className="text-3xl">Class Schedule</p>
-                    <ClassTable/>
                     <div className="mt-5">
-                    <Link to="/" className="text-white text-lg bg-slate-500 px-3 py-1 rounded-2xl "> Home </Link>
+                    <Link to="/" className="text-white text-lg bg-slate-500 px-3 py-1 rounded-2xl ">Home</Link>
+                    <Link  to="add-schedule" className="text-white text-lg bg-slate-500 px-3 py-1 rounded-2xl ml-2">Add Schedule</Link>
+                    <ClassTable/>
                     </div>
                 </div>
             </div>

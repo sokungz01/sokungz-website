@@ -1,5 +1,5 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { HomePage, ClassSchedulePage, NotFoundPage } from "./pages";
+import { HomePage, ClassSchedulePage, NotFoundPage, AddClassSchedulePage } from "./pages";
 function App() {
 
   return (
@@ -8,6 +8,7 @@ function App() {
       <Routes>
         <Route path='/' element={<HomePage/>}/>
         <Route path='/class-schedule' element={<ClassSchedulePage/>}/>
+        <Route path='/class-schedule/add-schedule' element={<AddClassSchedulePage/>}></Route>
         <Route path='*' element={<NotFoundPage/>}/>
       </Routes>
     </BrowserRouter>
