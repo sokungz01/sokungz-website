@@ -1,8 +1,4 @@
-import {
-  getSchedulesSettings,
-  getAcademicYear,
-  getSchedule,
-} from "@/libs/api";
+import { getSchedulesSettings, getAcademicYear, getSchedule } from "@/libs/api";
 import {
   SettingsItem,
   AcademicItem,
@@ -16,6 +12,10 @@ const days = DayData.map((obj) => obj.day);
 const times = TimeData.map((time) => time.times);
 
 function compareTimes(time1: string, time2: string) {
+  if (!time1 || !time2) {
+    return 0;
+  }
+
   const [hours1, minutes1] = time1.split(":").map(Number);
   const [hours2, minutes2] = time2.split(":").map(Number);
 
@@ -24,6 +24,10 @@ function compareTimes(time1: string, time2: string) {
   } else {
     return minutes1 - minutes2;
   }
+}
+
+interface MergedScheduleType extends ClassScheduleType {
+  colSpan: number;
 }
 
 const ClassTable = () => {
@@ -67,6 +71,59 @@ const ClassTable = () => {
     );
     FetchData();
   }, [currentAcademicYear]);
+
+  const mergeCells = () => {
+    const mergedDataSchedule: MergedScheduleType[][] = [];
+
+    days.forEach((day) => {
+      const mergedDaySchedule: MergedScheduleType[] = [];
+
+      times
+        .filter((_, timeIndex) => timeIndex < times.length - 1)
+        .forEach((time, timeIndex) => {
+          const scheduleItem = dataSchedule.find(
+            (item) =>
+              item.day === day &&
+              compareTimes(item.startTime, time) <= 0 && // Compare start time
+              compareTimes(item.endTime, times[timeIndex + 1]) >= 0 // Compare end time
+          );
+
+          if (scheduleItem) {
+            const existingMergedItem = mergedDaySchedule.find(
+              (mergedItem) =>
+                compareTimes(mergedItem.startTime, scheduleItem.startTime) ===
+                  0 &&
+                compareTimes(mergedItem.endTime, scheduleItem.endTime) === 0
+            );
+
+            if (existingMergedItem) {
+              existingMergedItem.colSpan += 1;
+            } else {
+              mergedDaySchedule.push({ ...scheduleItem, colSpan: 1 });
+            }
+          } else {
+            mergedDaySchedule.push({
+              class_id: 0,
+              class_subject: "",
+              class_subject_no: "",
+              class_room: "",
+              startTime: time,
+              endTime: times[timeIndex + 1],
+              day: day,
+              academic_id: 0,
+              colSpan: 1,
+            });
+          }
+        });
+
+      mergedDataSchedule.push(mergedDaySchedule);
+    });
+
+    return mergedDataSchedule;
+  };
+
+  const mergedDataSchedule = mergeCells();
+
   return (
     <div className="w-5/6 h-screen">
       <div className="my-5">
@@ -93,62 +150,69 @@ const ClassTable = () => {
         </select>
       </div>
       <div className="flex items-center justify-center">
-      <table className="w-full h-full flex flex-row flex-no-wrap overflow-hidden sm:flex-none sm:table sm:table-col table-fixed sm:border-separate sm:border-spacing-x-2 sm:border-spacing-y-4 sm:border border-slate-500">
-        <thead>
-          <tr className="hidden sm:table-row">
-            <th scope="col" className="text-sm border py-10 sm:py-3">Day | Time</th>
-            {times
-              .filter((_, index) => index < times.length - 1)
-              .map((_, index) => (
-                <th scope="col" key={index} className="text-sm border">
-                  {times[index] + "-" + times[index + 1]}
-                </th>
-              ))}
-          </tr>
-        </thead>
-        <tbody className="flex-1 sm:flex-none">
-          {days.map((day, dayIndex) => {
-            const dynamicColorClass = `day-color-${(days[dayIndex]).toLowerCase()}`;
-            return (
-              <tr key={dayIndex} className="flex flex-col flex-no wrap my-5 border-2 sm:border-0 sm:table-row">
-                <th className={`text-xs sm:border py-10 ${dynamicColorClass}`}>
-                  {day}
-                </th>
-                {times
-                  .filter((_, timeIndex) => timeIndex < times.length - 1)
-                  .map((time, timeIndex) => {
-                    const scheduleItem = dataSchedule.find(
-                      (item) =>
-                        item.day === day &&
-                        compareTimes(item.startTime, time) <= 0 && // Compare start time
-                        compareTimes(item.endTime, times[timeIndex + 1]) >= 0 // Compare end time
-                    );
-                    
-                    return (
-                      <td
-                        key={timeIndex}
-                        className={`sm:table-col text-sm sm:border ${
-                          scheduleItem ? dynamicColorClass : ""
-                        }`}
-                      >
-                        {scheduleItem ? (
-                          <div className="mt-3 sm:mt-0">
-                            <p className="text-xs">{scheduleItem.class_subject}</p>
-                            <p className="text-[10px]">{scheduleItem.class_subject_no}</p>
-                            <p className="text-[10px]">{scheduleItem.class_room}</p>
-                            <p className="text-[10px] sm:hidden">{scheduleItem.startTime+"-"+scheduleItem.endTime}</p>
-                          </div>
-                        ) : (
-                          " "
-                        )}
-                      </td>
-                    );
-                  })}
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
+        <table className="w-full h-full flex flex-row flex-no-wrap overflow-hidden sm:flex-none sm:table sm:table-col table-fixed sm:border-separate sm:border-spacing-x-2 sm:border-spacing-y-4 sm:border border-slate-500">
+          <thead>
+            <tr className="hidden sm:text-[8px] md:text-[9px] lg:text-[9.5px] xl:text-[12px] sm:table-row">
+              <th scope="col" className=" border py-10 sm:py-3">
+                Day | Time
+              </th>
+              {times
+                .filter((_, index) => index < times.length - 1)
+                .map((_, index) => (
+                  <th scope="col" key={index} className="border">
+                    {times[index] + "-" + times[index + 1]}
+                  </th>
+                ))}
+            </tr>
+          </thead>
+          <tbody className="flex-1 sm:flex-none">
+            {mergedDataSchedule.map((mergedDaySchedule, dayIndex) => {
+              const dynamicColorClass = `day-color-${days[
+                dayIndex
+              ].toLowerCase()}`;
+              return (
+                <tr
+                  key={dayIndex}
+                  className="flex flex-col flex-no wrap my-5 border-2 sm:border-0 sm:table-row"
+                >
+                  <th
+                    className={`flex flex-row justify-center sm:text-[8px] md:text-[9px] lg:text-[9.5px] xl:text-[12px] sm:border py-10 ${dynamicColorClass}`}
+                  >
+                    <p className="transform sm:-rotate-90 xl:rotate-0 ">{days[dayIndex]}</p>
+                  </th>
+                  {mergedDaySchedule.map((scheduleItem, timeIndex) => (
+                    <td
+                      key={timeIndex}
+                      colSpan={scheduleItem.colSpan}
+                      className={`sm:table-col text-sm sm:border ${scheduleItem.class_id === 0 ? "" :dynamicColorClass}`}
+                    >
+                      {scheduleItem ? (
+                        <div className="mt-3 sm:mt-0">
+                          <p className="text-xs">
+                            {scheduleItem.class_subject}
+                          </p>
+                          <p className="text-[10px]">
+                            {scheduleItem.class_subject_no}
+                          </p>
+                          <p className="text-[10px]">
+                            {scheduleItem.class_room}
+                          </p>
+                          <p className="text-[10px] sm:hidden">
+                            {scheduleItem.startTime +
+                              "-" +
+                              scheduleItem.endTime}
+                          </p>
+                        </div>
+                      ) : (
+                        " "
+                      )}
+                    </td>
+                  ))}
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
       <p className="mt-3">
         Class Schedule for {academicYear?.academic_year} CPE Regular Program |
